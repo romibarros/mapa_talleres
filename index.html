@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Interactivo de Buenos Aires</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Encode+Sans:wght@100..900&display=swap');
+        body { 
+            display: flex;
+            margin: auto;
+            justify-content: center;
+            font-family: "Encode Sans", sans-serif;
+        }
+        #map {
+            height: 800px;
+            width: 70%; /* Ancho del mapa */
+        }
+        #info {
+            height: auto;
+            width: 25%;
+            font-size: 15px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-left: 2px solid #ccc;
+        }
+        .info-title {
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 10px;
+            margin-top: 0;
+        }
+        .tooltip{
+            font-size: 10px;
+            background-color: rgba(0, 154, 174, 0.8);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px;
+            color: #FFF;
+            outline: none;
+        }
+        *:focus {
+            outline: none; /* Quita el outline */
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="info">
+        <p class="info-title">Información del Departamento</p>
+        <p id="info-content">Selecciona un departamento para ver la información.</p>
+    </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Crear el mapa
+        const map = L.map('map').setView([-35.61, -60.38], 7); // Coordenadas aproximadas de Buenos Aires
+        let lastLayer;
+        function style(feature) {
+            return {
+                fillColor: '#7a7a7a', // Color por defecto
+                weight: 1,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.6
+            };
+        }
+        // Función para manejar el clic en las zonas
+        function onEachFeature(feature, layer) {
+            
+
+
+            // Cambiar el color al hacer clic
+            layer.on('click', function () {
+                if (lastLayer) {
+                    lastLayer.setStyle(style(lastLayer.feature)); // Restablece el estilo original
+                }
+                layer.setStyle({
+                    fillColor: '#009aae',
+                });
+                lastLayer = layer;
+
+                 // Actualizar el contenedor de información
+                document.getElementById('info-content').innerHTML = `
+                    <strong>${feature.properties.departamento}</strong><br>
+                    <p>Cantidad de talleres: 450</p>
+                    <p>• Escuelas: 200 </p>
+                    <p>• Localidad: ${feature.properties.cabecera} </p>
+                `;
+            });
+            layer.bindTooltip(feature.properties.departamento, {
+                permanent: false, // No permanente
+                className: 'tooltip',
+                fillColor: '#009aae',
+                sticky: true, // El tooltip sigue abierto mientras el ratón está sobre el objeto
+                direction: 'top' // Dirección automática
+            });
+        }
+
+
+
+        // Cargar el archivo GeoJSON
+        fetch('./departamentos_buenos_aires.json') // Reemplaza con la ruta de tu archivo GeoJSON
+            .then(response => response.json())
+            .then(data => {
+                // Añadir el GeoJSON al mapa
+                L.geoJSON(data, {
+                    style: style,
+                    onEachFeature: onEachFeature
+                }).addTo(map);
+            })
+            .catch(error => console.error('Error cargando el GeoJSON:', error));
+    </script>
+</body>
+</html>
