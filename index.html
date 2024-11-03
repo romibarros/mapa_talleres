@@ -5,17 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Interactivo de Buenos Aires</title>
     <link rel="icon" href="favicon.png" type="image/png">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <link rel="stylesheet" href="./styles_map.css"/>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Encode+Sans:wght@100..900&display=swap');
         body { 
             display: flex;
             margin: auto;
             justify-content: center;
-            font-family: "Encode Sans", sans-serif;
+            font-family:'Lucida Sans', sans-serif;
         }
         #map {
             height: 800px;
+            background-color: #e3f4fc;
+
             width: 70%; /* Ancho del mapa */
         }
         #info {
@@ -23,18 +24,28 @@
             width: 25%;
             font-size: 15px;
             padding: 20px;
-            background-color: #f9f9f9;
+            background-color: #FFF;
             border-left: 2px solid #ccc;
         }
         .info-title {
-            font-weight: bold;
             font-size: 20px;
             margin-bottom: 10px;
             margin-top: 0;
         }
+        .info-content{
+            font-weight: 300;
+        }
+        .depto{
+            color: #e22d7c;
+            font-weight: bold;
+            margin-bottom: 0;
+        }
+        p{
+            font-size: 18px;
+        }
         .tooltip{
             font-size: 10px;
-            background-color: rgba(0, 154, 174, 0.8);
+            background-color: rgba(226, 45, 124, 0.8);
             border: 1px solid #ccc;
             border-radius: 5px;
             padding: 5px;
@@ -52,14 +63,14 @@
         <p class="info-title">Información del Departamento</p>
         <p id="info-content">Selecciona un departamento para ver la información.</p>
     </div>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="./leaflet.js"></script>
     <script>
         // Crear el mapa
         const map = L.map('map').setView([-35.61, -60.38], 7); // Coordenadas aproximadas de Buenos Aires
         let lastLayer;
         function style(feature) {
             return {
-                fillColor: '#7a7a7a', // Color por defecto
+                fillColor: '#009aae', // Color por defecto
                 weight: 1,
                 opacity: 1,
                 color: 'white',
@@ -78,22 +89,25 @@
                     lastLayer.setStyle(style(lastLayer.feature)); // Restablece el estilo original
                 }
                 layer.setStyle({
-                    fillColor: '#009aae',
+                    fillColor: '#e22d7c',
                 });
                 lastLayer = layer;
 
                  // Actualizar el contenedor de información
                 document.getElementById('info-content').innerHTML = `
-                    <strong>${feature.properties.departamento}</strong><br>
-                    <p>Cantidad de talleres: 450</p>
-                    <p>• Escuelas: 200 </p>
-                    <p>• Localidad: ${feature.properties.cabecera} </p>
+                    <p class="depto">${feature.properties.departamento}</p>
+                    <h3>Región Sanitaria: ${feature.properties.region_sanitaria}</h3>
+                    <p>Cantidad de talleres: ${feature.properties.cantidad_talleres}</p>
+                    <p>Cantidad de escuelas: ${feature.properties.cantidad_escuelas}</p>
+                    <p>Cantidad de encuentros: ${feature.properties.cantidad_encuentros}</p>
+                    <p>Cantidad de estudiantes: ${feature.properties.cantidad_estudiantes}</p>
+                    <p>Escuelas: ${feature.properties.escuelas}  </p>
                 `;
             });
             layer.bindTooltip(feature.properties.departamento, {
                 permanent: false, // No permanente
                 className: 'tooltip',
-                fillColor: '#009aae',
+                fillColor: '#e22d7c',
                 sticky: true, // El tooltip sigue abierto mientras el ratón está sobre el objeto
                 direction: 'top' // Dirección automática
             });
